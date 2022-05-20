@@ -11,6 +11,19 @@ class GeneticAlgorithm:
         self.cr = cr
         self.mr = mr
 
+    def run():
+        pop = self.generate_population()
+        
+        # calculate the fitness function
+        # do the crossover --> make sure the chromosome is fiable
+        # do the mutation
+
+        # run NSGA
+        # store APFD value to csv
+
+        # calculate fitness value
+        # if fitness value converged then stop GA
+
     def generate_population(self):
         population = []
         for i in range(0, self.pop_size):
@@ -23,17 +36,14 @@ class GeneticAlgorithm:
 
     def populate(self, j, chromosome):
         random_index = random.randint(1, len(self.test_cases))
-        chromosome.append(random_index)
+
+        # here chromosome is just an int
+        chromosome.append(self.test_cases[random_index - 1])
 
         if j > 0:
             if self.is_duplicate_found(chromosome):
                 chromosome.pop()
                 self.populate(j, chromosome)
-
-    def fitness(self, chromosome):
-        weight = 0
-        number_of_tc = len(chromosome)
-        number_of_fault = len(chromosome[1])
 
     @staticmethod
     def is_duplicate_found(chromosome):
