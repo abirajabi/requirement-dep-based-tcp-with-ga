@@ -17,13 +17,12 @@ def main():
     )
 
     # parse rdr matrix first to fill rdw
-    parser.parse_rdr_matrix()
-    test_cases = parser.parse_test_cases()
+    rdw = parser.parse_rdr_matrix()
+    test_cases = parser.parse_test_cases(rdw)
 
     # construct a population of test cases order permuatation
-    # ga = GeneticAlgorithm(rdr, test_cases, 100, 0, 0)
-    # ga.run()
-
+    ga = GeneticAlgorithm(test_cases, rdw, pop_size=100, cr=0, mr=0)
+    ga.run()
 
 if __name__ == "__main__":
     main()

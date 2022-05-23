@@ -9,13 +9,12 @@ class CSVParser:
         self.tf_path = tf_path
         self.tr_path = tr_path
         self.rdr_path = rdr_path
-        self.rdw = []
 
-    def parse_test_cases(self):
+    def parse_test_cases(self, rdw):
         tr = []
         tf = []
         tc = []
-        dw = []
+        tdw = []
 
         with open(self.tf_path, mode='r', encoding="utf-8-sig") as tf_file:
             tf_reader = csv.reader(tf_file)
@@ -38,14 +37,16 @@ class CSVParser:
                     requirements_covered.append(val)
 
                 tr.append(requirements_covered)
-                dw.append(self.calc_dep_weight(requirements_covered))
+                tdw.append(self.calc_dep_weight(requirements_covered, rdw))
 
-        for tf_item, tr_item, dw_item in zip(tf, tr, dw):
-            tc.append(Gene(tf_item[0], tf_item[1], tr_item, dw_item))
+        for tf_item, tr_item, tdw_item in zip(tf, tr, tdw):
+            tc.append(Gene(tf_item[0], tf_item[1], tr_item, tdw_item))
         return tc
 
     def parse_rdr_matrix(self):
         requirements = []
+        rdw = []
+
         with open(self.rdr_path, mode='r', encoding="utf-8-sig") as rdr_file:
 
             csv_reader = csv.reader(rdr_file)
@@ -59,12 +60,14 @@ class CSVParser:
         rdr_file.close()
 
         for item in requirements:
-            self.rdw.append(sum(item[1]))
+            rdw.append(sum(item[1]))
 
-    def calc_dep_weight(self, tr):
+        return rdw
+
+    def calc_dep_weight(self, tr, rdw):
         tdw = 0
         for i in range(0, len(tr)):
             if tr[i] == 1:
-                tdw += self.rdw[i]
+                tdw += rdw[i]
 
         return tdw
