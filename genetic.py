@@ -6,40 +6,49 @@ from gene import Gene
 
 class GeneticAlgorithm:
 
-    def __init__(self, test_cases, rdw, pop_size=100, cr=0.9, mr=0.01, number_of_generation=1000, tournament_prob=0.9):
+    def __init__(self, test_cases, rdw, pop_size=100, crossover_rate=0.9, mutation_rate=0.01, number_of_generation=1000, tournament_prob=0.9):
         self.test_cases = test_cases
         self.rdw = rdw
         self.pop_size = pop_size
-        self.cr = cr
-        self.mr = mr
+        self.crossover_rate = crossover_rate
+        self.mutation_rate = mutation_rate
         self.number_of_generation = number_of_generation
+        self.tournament_prob = tournament_prob
+        self.chromosome_size = self.get_chromosome_size()
+
+    def get_chromosome_size(self):
+        return len(self.test_cases)
 
     def run(self):
-        # generate pop and init each individual with objective function score
         pop = self.create_initial_population()
         generation_number = 0
+        self.fast_nondominated_sort(pop)
+        print("Done sorting!")
 
-        for i in range(0, len(pop)):
-            print(i + 1)
-            print(pop.population[i].apfd_score)
-            print(pop.population[i].req_dep_score)
+        for front in pop.fronts:
+            self.calculate_crowding_distance(front)
+        print("Crowding distance calculated!")
 
-        # iterate as many as number_of_generation
-        # for i in range(0, self.number_of_generation):
-        #     generation_number += 1
+        # create first offspring
+        for i in range(0, self.number_of_generation):
+            generation_number += 1
 
-            # do fast non-dominated sorting
+            # get parents candidate for crossvoer
+            parents_candidate = []
+            parent1 = self.tournament_selection(pop)
+            parent2 = parent1
 
-            # do tournament selection
+            while (parent1 == parent2):
+                parent2 = self.tournament_selection(pop)
 
-        # do the crossover --> make sure the chromosome is fiable
-        # do the mutation
+            parents_candidate.append(parent1)
+            parents_candidate.append(parent2)
 
-        # run NSGA
-        # store APFD value to csv
+            pre_mutation_generation = self.check_for_crossover(
+                parents_candidate)
+            new_generation = self.mutate(pre_mutation_generation)
 
-        # calculate fitness value
-        # if fitness value converged then stop GA
+        returned_population = None
 
     def create_initial_population(self):
         population = Population()
@@ -49,13 +58,12 @@ class GeneticAlgorithm:
                 self.populate(j, chromosome)
 
             individual = Individual(chromosome)
-            individual.calculate_fitness(chromosome, self.rdw)
+            individual.calculate_fitness(self.rdw)
             population.append(individual)
         return population
 
     def populate(self, j, chromosome):
         random_index = random.randint(1, len(self.test_cases))
-
         chromosome.append(self.test_cases[random_index - 1])
 
         if j > 0:
@@ -71,12 +79,143 @@ class GeneticAlgorithm:
 
         return len(duplicate_checker) != len(set(duplicate_checker))
 
+    def fast_nondominated_sort(self, population):
+        population.fronts = [[]]
+        for individual in population:
+            individual.domination_count = 0
+            individual.dominated_solutions = []
+
+            for other_individual in population:
+                if individual.dominates(other_individual):
+                    individual.dominated_solutions.append(other_individual)
+                elif other_individual.dominates(individual):
+                    individual.domination_count += 1
+
+            # if the individual never get dominated, then put on the first front
+            if individual.domination_count == 0:
+                individual.rank = 0
+                population.fronts[0].append(individual)
+
+        # iterate to each individual, to find second-nth front
+        i = 0
+        while len(population.fronts[i]) > 0:
+            temp = []
+            for individual in population.fronts[i]:
+                for other_individual in individual.dominated_solutions:
+                    if other_individual.domination_count == 0:
+                        other_individual.rank = i+1
+                        temp.append(other_individual)
+            i += 1
+            population.fronts.append(temp)
+
+    def calculate_crowding_distance(self, front):
+        if len(front) > 0:
+            solutions_num = len(front)
+            for individual in front:
+                individual.crowding_distance = 0
+
+            for m in range(len(front[0].objectives)):
+                front.sort(key=lambda individual: individual.objectives[m])
+
+                front[0].crowding_distance = 10**9
+                front[solutions_num - 1].crowding_distance = 10**9
+                m_values = [individual.objectives[m] for individual in front]
+                scale = max(m_values) - min(m_values)
+                if scale == 0:
+                    scale = 1
+                for i in range(1, solutions_num-1):
+                    front[i].crowding_distance += (
+                        front[i+1].objectives[m] - front[i-1].objectives[m])/scale
+
+    def crowding_operator(self, individual, other_individual):
+        if (individual.rank < other_individual.rank) or \
+                ((individual.rank == other_individual.rank) and (individual.crowding_distance > other_individual.crowding_distance)):
+            return 1
+        else:
+            return -1
+
     @staticmethod
-    def crossover_point():
+    def get_crossover_point():
         value = random.random()
         return value
 
-    def fast_nondominated_sort(self, population):
-        population_fronts = [[]]
-        for individual in population:
-            individual.dmo
+    def choose_with_prob(self, prob):
+        value = random.random()
+        return value < prob
+
+    # return type: Individual
+    def tournament_selection(self, population):
+        # number of tournament participants equals to 2
+        participants = random.sample(population.population, 2)
+        best = None
+
+        for partipant in participants:
+            if best is None or (self.crowding_operator(partipant, best) == 1 and self.choose_with_prob(self.tournament_prob)):
+                best = partipant
+
+        return best
+
+    def crossover(self, individual1, individual2):
+        # do single point crossover
+        first_child_test_case_set = []
+        second_child_test_case_set = []
+
+        crossover_point = int((self.get_crossover_point())
+                              * (self.chromosome_size-1)) + 1
+        first_parent_copy = individual1.chromosome.copy()
+        second_parent_copy = individual2.chromosome.copy()
+
+        i = 0
+        for test_case_a, test_case_b in zip(individual1.chromosome, individual2.chromosome):
+            i += 1
+            if i <= crossover_point:
+                first_child_test_case_set.append(test_case_a)
+                if test_case_b in first_parent_copy:
+                    first_parent_copy.remove(test_case_b)
+                else:
+                    first_parent_copy.pop()
+                second_child_test_case_set.append(test_case_b)
+                if test_case_a in second_parent_copy:
+                    second_parent_copy.remove(test_case_a)
+                else:
+                    second_parent_copy.pop()
+            else:
+                first_child_test_case_set.extend(second_parent_copy)
+                second_child_test_case_set.extend(first_parent_copy)
+                break
+
+        new_individual1 = Individual(first_child_test_case_set)
+        new_individual1.calculate_fitness(self.rdw)
+        new_individual2 = Individual(second_child_test_case_set)
+        new_individual2.calculate_fitness(self.rdw)
+
+        return [new_individual1, new_individual2]
+
+    def check_for_crossover(self, parents_candidate):
+        new_generation = []         
+
+        if self.choose_with_prob(self.crossover_rate):
+            children_duo = self.crossover(parents_candidate[0], parents_candidate[1])
+            new_generation.extend(children_duo)
+        else:
+            new_generation.extend(parents_candidate)
+        return new_generation          
+
+    def swap_test_cases(self, test_case_index):
+        random_index = random.randint(0, self.chromosome_size - 1)
+        if random_index is not test_case_index:
+            return random_index
+        else:
+            return self.swap_test_cases(test_case_index)
+
+    def mutate(self, generation):
+        new_generation = []
+        for individual in generation:
+            for test_case in individual.chromosome:
+                if self.choose_with_prob(self.mutation_rate):
+                    current_index = individual.chromosome.index(test_case)
+                    random_index = self.swap_test_cases(current_index)
+                    individual.chromosome[current_index], individual.chromosome[
+                        random_index] = individual.chromosome[random_index], individual.chromosome[current_index]
+            new_generation.append(individual.chromosome)
+        return new_generation

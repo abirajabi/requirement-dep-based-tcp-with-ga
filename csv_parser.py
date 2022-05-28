@@ -1,5 +1,4 @@
 import csv
-
 from gene import Gene
 
 
@@ -10,6 +9,7 @@ class CSVParser:
         self.tr_path = tr_path
         self.rdr_path = rdr_path
 
+    # return type: List of Gene. Gene represent a single test case with metadata
     def parse_test_cases(self, rdw):
         tr = []
         tf = []
@@ -43,6 +43,8 @@ class CSVParser:
             tc.append(Gene(tf_item[0], tf_item[1], tr_item, tdw_item))
         return tc
 
+    # return type: List of double, containing dependency weight that owned
+    # for a certain requirement
     def parse_rdr_matrix(self):
         requirements = []
         rdw = []
