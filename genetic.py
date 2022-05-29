@@ -81,10 +81,11 @@ class GeneticAlgorithm:
 
     def fast_nondominated_sort(self, population):
         population.fronts = [[]]
-        for individual in population:
+        for index, individual in enumerate(population):
             individual.domination_count = 0
             individual.dominated_solutions = []
 
+            print("MASUK NON DOMINATED SORTING FOR Individual ", index)
             for other_individual in population:
                 if individual.dominates(other_individual):
                     individual.dominated_solutions.append(other_individual)
@@ -93,19 +94,23 @@ class GeneticAlgorithm:
 
             # if the individual never get dominated, then put on the first front
             if individual.domination_count == 0:
+                print("FRONT PERTAMA TERDETEKSI UNTUK INDIVIDUAL ", index)
                 individual.rank = 0
                 population.fronts[0].append(individual)
 
         # iterate to each individual, to find second-nth front
         i = 0
         while len(population.fronts[i]) > 0:
+            print(len(population.fronts[i]))
+            print("MASUK PENCARIAN FRONT SELANJUTNYA (i) = ", i)
             temp = []
             for individual in population.fronts[i]:
                 for other_individual in individual.dominated_solutions:
+                    other_individual.domination_count -= 1
                     if other_individual.domination_count == 0:
                         other_individual.rank = i+1
                         temp.append(other_individual)
-            i += 1
+            i = i + 1
             population.fronts.append(temp)
 
     def calculate_crowding_distance(self, front):
