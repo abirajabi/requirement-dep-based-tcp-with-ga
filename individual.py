@@ -9,8 +9,8 @@ class Individual:
         self.chromosome = genes
 
         # NSGA related
-        self.rank = 0
-        self.crowding_distance = 0
+        self.rank = None
+        self.crowding_distance = None
         self.domination_count = None
         self.dominated_solutions = None
         self.objectives = []

@@ -9,6 +9,7 @@ class GeneticAlgorithm:
     def __init__(self, test_cases, rdw, pop_size=100, crossover_rate=0.9, mutation_rate=0.01, number_of_generation=1000, tournament_prob=0.9):
         self.test_cases = test_cases
         self.rdw = rdw
+        self.population = None
         self.pop_size = pop_size
         self.crossover_rate = crossover_rate
         self.mutation_rate = mutation_rate
@@ -20,35 +21,29 @@ class GeneticAlgorithm:
         return len(self.test_cases)
 
     def run(self):
-        pop = self.create_initial_population()
+        self.population = self.create_initial_population()
         generation_number = 0
-        self.fast_nondominated_sort(pop)
-        print("Done sorting!")
-
-        for front in pop.fronts:
+        self.fast_nondominated_sort(self.population)
+        for front in self.population.fronts:
             self.calculate_crowding_distance(front)
-        print("Crowding distance calculated!")
-
-        # create first offspring
-        for i in range(0, self.number_of_generation):
-            generation_number += 1
-
-            # get parents candidate for crossvoer
-            parents_candidate = []
-            parent1 = self.tournament_selection(pop)
-            parent2 = parent1
-
-            while (parent1 == parent2):
-                parent2 = self.tournament_selection(pop)
-
-            parents_candidate.append(parent1)
-            parents_candidate.append(parent2)
-
-            pre_mutation_generation = self.check_for_crossover(
-                parents_candidate)
-            new_generation = self.mutate(pre_mutation_generation)
-
+        children = self.create_children(self.population)
         returned_population = None
+
+        # for i in range(0, self.number_of_generation):
+        #     self.population.extend(children)
+        #     self.fast_nondominated_sort(self.population)
+        #     new_population = Population()
+
+        #     front_num = 0
+        #     while len(new_population) + len(self.population.fronts[front_num]) <= self.pop_size:
+        #         self.calculate_crowding_distance(
+        #             self.population.fronts[front_num])
+        #         new_population.extend(self.population.fronts[front_num])
+        #         front_num += 1
+
+        #     self.calculate_crowding_distance(front)
+
+        # return returned_population.population.fronts[0]
 
     def create_initial_population(self):
         population = Population()
@@ -81,11 +76,10 @@ class GeneticAlgorithm:
 
     def fast_nondominated_sort(self, population):
         population.fronts = [[]]
-        for index, individual in enumerate(population):
+        for individual in population:
             individual.domination_count = 0
             individual.dominated_solutions = []
 
-            print("MASUK NON DOMINATED SORTING FOR Individual ", index)
             for other_individual in population:
                 if individual.dominates(other_individual):
                     individual.dominated_solutions.append(other_individual)
@@ -94,15 +88,12 @@ class GeneticAlgorithm:
 
             # if the individual never get dominated, then put on the first front
             if individual.domination_count == 0:
-                print("FRONT PERTAMA TERDETEKSI UNTUK INDIVIDUAL ", index)
                 individual.rank = 0
                 population.fronts[0].append(individual)
 
         # iterate to each individual, to find second-nth front
         i = 0
         while len(population.fronts[i]) > 0:
-            print(len(population.fronts[i]))
-            print("MASUK PENCARIAN FRONT SELANJUTNYA (i) = ", i)
             temp = []
             for individual in population.fronts[i]:
                 for other_individual in individual.dominated_solutions:
@@ -147,6 +138,28 @@ class GeneticAlgorithm:
     def choose_with_prob(self, prob):
         value = random.random()
         return value < prob
+
+    def create_children(self, population):
+        children = []
+
+        while len(children) < len(population):
+            # get parents candidate for crossvoer
+            parents_candidate = []
+            parent1 = self.tournament_selection(population)
+            parent2 = parent1
+
+            while parent1 == parent2:
+                parent2 = self.tournament_selection(population)
+
+            parents_candidate.append(parent1)
+            parents_candidate.append(parent2)
+
+            pre_mutation_generation = self.check_for_crossover(
+                parents_candidate)
+            new_generation = self.mutate(pre_mutation_generation)
+            children.extend(new_generation)
+
+        return children
 
     # return type: Individual
     def tournament_selection(self, population):
@@ -197,14 +210,15 @@ class GeneticAlgorithm:
         return [new_individual1, new_individual2]
 
     def check_for_crossover(self, parents_candidate):
-        new_generation = []         
+        new_generation = []
 
         if self.choose_with_prob(self.crossover_rate):
-            children_duo = self.crossover(parents_candidate[0], parents_candidate[1])
+            children_duo = self.crossover(
+                parents_candidate[0], parents_candidate[1])
             new_generation.extend(children_duo)
         else:
             new_generation.extend(parents_candidate)
-        return new_generation          
+        return new_generation
 
     def swap_test_cases(self, test_case_index):
         random_index = random.randint(0, self.chromosome_size - 1)
@@ -222,5 +236,5 @@ class GeneticAlgorithm:
                     random_index = self.swap_test_cases(current_index)
                     individual.chromosome[current_index], individual.chromosome[
                         random_index] = individual.chromosome[random_index], individual.chromosome[current_index]
-            new_generation.append(individual.chromosome)
+            new_generation.append(individual)
         return new_generation
