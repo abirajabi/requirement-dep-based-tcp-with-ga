@@ -1,3 +1,8 @@
+'''
+    Author: Naufal Rajabi
+    Reference: David T. Pocock
+'''
+
 import csv
 from gene import Gene
 

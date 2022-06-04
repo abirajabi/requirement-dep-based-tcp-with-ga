@@ -1,3 +1,7 @@
+'''
+    Author: Naufal Rajabi
+'''
+
 class Population:
     def __init__(self):
         self.population = []

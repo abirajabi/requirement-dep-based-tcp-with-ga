@@ -1,4 +1,5 @@
 '''
+    Author: Naufal Rajabi
     Individual is a chromosome that contains a set of gene, with its metadata
 '''
 

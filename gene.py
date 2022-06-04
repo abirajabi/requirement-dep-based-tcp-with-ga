@@ -1,4 +1,7 @@
 '''
+    Author: Naufal Rajabi
+    Reference: David T. Pocock
+
     Gene is a single test case representation in GA problem.
     Test case can find several fault and cover several requirement.
     Gene contains test case number, fault coverage matrix,

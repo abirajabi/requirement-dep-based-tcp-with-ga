@@ -1,3 +1,7 @@
+'''
+    Author: Naufal Rajabi
+'''
+
 import random
 from individual import Individual
 from population import Population
@@ -22,27 +26,14 @@ class GeneticAlgorithm:
 
     def run(self):
         self.population = self.create_initial_population()
-        generation_number = 0
         self.fast_nondominated_sort(self.population)
+
         for front in self.population.fronts:
             self.calculate_crowding_distance(front)
+
         children = self.create_children(self.population)
-        returned_population = None
-
-        # for i in range(0, self.number_of_generation):
-        #     self.population.extend(children)
-        #     self.fast_nondominated_sort(self.population)
-        #     new_population = Population()
-
-        #     front_num = 0
-        #     while len(new_population) + len(self.population.fronts[front_num]) <= self.pop_size:
-        #         self.calculate_crowding_distance(
-        #             self.population.fronts[front_num])
-        #         new_population.extend(self.population.fronts[front_num])
-        #         front_num += 1
-
-        #     self.calculate_crowding_distance(front)
-
+        self.population.extend(children)
+        self.fast_nondominated_sort(self.population)
         # return returned_population.population.fronts[0]
 
     def create_initial_population(self):
@@ -76,22 +67,21 @@ class GeneticAlgorithm:
 
     def fast_nondominated_sort(self, population):
         population.fronts = [[]]
+        masuk = 0
         for individual in population:
+            masuk += 1
             individual.domination_count = 0
             individual.dominated_solutions = []
-
             for other_individual in population:
                 if individual.dominates(other_individual):
                     individual.dominated_solutions.append(other_individual)
                 elif other_individual.dominates(individual):
                     individual.domination_count += 1
-
-            # if the individual never get dominated, then put on the first front
             if individual.domination_count == 0:
                 individual.rank = 0
                 population.fronts[0].append(individual)
+        print("Jumlah masuk ", masuk)
 
-        # iterate to each individual, to find second-nth front
         i = 0
         while len(population.fronts[i]) > 0:
             temp = []
@@ -101,8 +91,12 @@ class GeneticAlgorithm:
                     if other_individual.domination_count == 0:
                         other_individual.rank = i+1
                         temp.append(other_individual)
-            i = i + 1
+            i = i+1
             population.fronts.append(temp)
+        front_size = 0
+        for front in population.fronts:
+            front_size += len(front)
+        print("size after sort", front_size)
 
     def calculate_crowding_distance(self, front):
         if len(front) > 0:
