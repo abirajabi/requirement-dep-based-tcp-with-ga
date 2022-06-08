@@ -42,11 +42,11 @@ def main():
     test_cases = parser.parse_test_cases(rdw)
 
     # construct a population of test cases order permuatation
-    ga = GeneticAlgorithm(test_cases, rdw, pop_size=100,
-                          crossover_rate=0.9, mutation_rate=0.01)
+    ga = GeneticAlgorithm(test_cases, rdw, pop_size=100, mutation_rate=0.1)
 
     # return pareto front
     non_dominated_tcp_solutions = ga.run()
+    print("Berhasil dapet front")
 
     # Average Precentage of Requirement Covered (APRC)
     # hitung APRC untuk setiap individu pada pareto front

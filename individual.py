@@ -2,7 +2,7 @@
     Author: Naufal Rajabi
     Individual is a chromosome that contains a set of gene, with its metadata
 '''
-
+import sys
 
 class Individual:
     def __init__(self, genes):
@@ -72,3 +72,8 @@ class Individual:
             or_condition = or_condition or mine > others
 
         return (and_condition and or_condition)
+
+    def reset(self):
+        self.domination_count = 0
+        self.rank = sys.maxsize
+        self.dominated_solutions = []
