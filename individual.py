@@ -44,9 +44,11 @@ class Individual:
     #  calculate the DCR as objective function of an individual
     def calculate_req_dep(self, rdw):
         dcr = 0
+        total_tdw = 0
+        for tc in self.chromosome:
+            total_tdw += tc.dw
 
         number_of_test_cases_in_set = len(self.chromosome)
-        number_of_test_cases_conducted = 0
 
         for i in range(0, number_of_test_cases_in_set):
             auc = 0
@@ -60,7 +62,7 @@ class Individual:
                 auc += w
             dcr += auc
 
-        return dcr
+        return dcr / (number_of_test_cases_in_set * total_tdw)
 
     # dominates by maximization of the 2 objectives function
     def dominates(self, other_individual):

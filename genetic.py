@@ -26,47 +26,49 @@ class GeneticAlgorithm:
         return len(self.test_cases)
 
     def run(self):
+        print("CREATING INITAL POPULATION")
         self.population = self.create_initial_population()
+        print("BEGIN SORT")
         self.fast_nondominated_sort(self.population)
+        print("DONE SORTING, CALCULATING CROWDING DISTNANCE")
         for front in self.population.fronts:
             self.calculate_crowding_distance(front)
         children = self.create_children(self.population)
-        self.population.extend(children)
-        self.fast_nondominated_sort(self.population)
 
-        # returned_population = None
-        # # children = self.population.population.copy()
-        # for i in range(self.number_of_generation):
-        #     self.population.extend(children)
-        #     self.fast_nondominated_sort(self.population)
-        #     new_population = Population()
+        returned_population = None
+        for i in range(self.number_of_generation):
+            print("GENERATION NUMBER ", i + 1)
+            self.population.extend(children)
+            self.fast_nondominated_sort(self.population)
+            new_population = Population()
 
-        #     front_num = 0
-        #     while len(new_population) + len(self.population.fronts[front_num]) <= self.pop_size:
-        #         self.calculate_crowding_distance(
-        #             self.population.fronts[front_num])
-        #         new_population.extend(self.population.fronts[front_num])
-        #         front_num += 1
+            front_num = 0
+            while len(new_population) + len(self.population.fronts[front_num]) <= self.pop_size:
+                self.calculate_crowding_distance(
+                    self.population.fronts[front_num])
+                new_population.extend(self.population.fronts[front_num])
+                front_num += 1
 
-        #     self.calculate_crowding_distance(
-        #         self.population.fronts[front_num])
-        #     self.population.fronts[front_num].sort(
-        #         key=lambda individual: individual.crowding_distance, reverse=True)
-        #     new_population.extend(
-        #         self.population.fronts[front_num][0:self.pop_size-len(new_population)])
-        #     returned_population = self.population
+            self.calculate_crowding_distance(
+                self.population.fronts[front_num])
+            self.population.fronts[front_num].sort(
+                key=lambda individual: individual.crowding_distance, reverse=True)
+            new_population.extend(
+                self.population.fronts[front_num][0:self.pop_size-len(new_population)])
+            returned_population = self.population
 
-        #     self.population = new_population
-        #     self.fast_nondominated_sort(self.population)
-        #     for front in self.population.fronts:
-        #         self.calculate_crowding_distance(front)
-        #     children = self.create_children(self.population)
+            self.population = new_population
+            self.fast_nondominated_sort(self.population)
+            for front in self.population.fronts:
+                self.calculate_crowding_distance(front)
+            children = self.create_children(self.population)
 
-        # return returned_population.fronts[0]
+        return returned_population.fronts[0]
 
     def create_initial_population(self):
         population = Population()
         for i in range(0, self.pop_size):
+            print("CREATING CHROMOSOME: ", i)
             chromosome = []
             for j in range(0, len(self.test_cases)):
                 self.populate(j, chromosome)
@@ -94,7 +96,6 @@ class GeneticAlgorithm:
         return len(duplicate_checker) != len(set(duplicate_checker))
 
     def fast_nondominated_sort(self, population):
-        print("pop size", len(population))
         population.fronts = [[]]
         for individual in population:
             individual.rank = None
@@ -112,24 +113,16 @@ class GeneticAlgorithm:
 
         i = 0
         while len(population.fronts[i]) > 0:
+            print("FRONT LENGTH ", i, len(population.fronts[i]))
             temp = []
             for individual in population.fronts[i]:
                 for other_individual in individual.dominated_solutions:
                     other_individual.domination_count -= 1
-                    print("DOMINATION COUNT", other_individual.domination_count)
                     if other_individual.domination_count == 0:
                         other_individual.rank = i + 1
                         temp.append(other_individual)
             i = i+1
             population.fronts.append(temp)
-
-        front_size = 0
-        for front in population.fronts:
-            front_size += len(front)
-        print("size after sort", front_size)
-
-        # for individual in population:
-        #     print(individual.rank)
 
     def calculate_crowding_distance(self, front):
         if len(front) > 0:
@@ -247,7 +240,7 @@ class GeneticAlgorithm:
                 new_generation.append(child)
         else:
             new_generation.append(copy.deepcopy(parents_candidate[0]))
-            new_generation.append(copy.deepcopy(parents_candidate[0]))
+            new_generation.append(copy.deepcopy(parents_candidate[1]))
         return new_generation
 
     def swap_test_cases(self, test_case_index):
