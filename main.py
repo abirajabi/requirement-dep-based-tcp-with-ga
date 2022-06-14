@@ -5,7 +5,6 @@
         1. TCP: https://github.com/dathpo/test-case-prioritisation-ga
         2. NSGA-II: https://github.com/baopng/NSGA-II
 '''
-# import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -30,13 +29,14 @@ def calculate_aprc(individual):
     return 1 - (weight / (number_of_requirement * number_of_test_cases_in_set)
                 ) + 1 / (2 * number_of_test_cases_in_set)
 
+
 def main():
     # load and parse the three matrix
     parser = CSVParser(
-        tf_path="./casestudy/CST/tf.csv",
-        tr_path="./casestudy/CST/tr.csv",
-        # rdr_path="./casestudy/CST/rdr.csv"
-        rdr_path="./casestudy/CST/rdr_weight.csv"
+        tf_path="./casestudy/iTrust/tf.csv",
+        tr_path="./casestudy/iTrust/tr.csv",
+        # rdr_path="./casestudy/iTrust/rdr.csv"
+        rdr_path="./casestudy/iTrust/rdr_weight.csv"
     )
 
     # parse rdr matrix first to fill rdw
@@ -44,7 +44,7 @@ def main():
     test_cases = parser.parse_test_cases(rdw)
 
     # construct a population of test cases order permutation
-    ga = GeneticAlgorithm(test_cases, rdw, number_of_generation=1000)
+    ga = GeneticAlgorithm(test_cases, rdw, number_of_generation=10)
 
     # return pareto optimal solution
     non_dominated_tcp_solutions = ga.run()
@@ -52,7 +52,7 @@ def main():
     pop_data = []
     method = "WEIGHTED"
     # method = "BINARY"
-    sut = "CST"
+    sut = "iTrust"
 
     for individual in non_dominated_tcp_solutions:
         aprc = calculate_aprc(individual)
@@ -63,7 +63,7 @@ def main():
     pareto_df = pd.DataFrame(data=pop_data, columns=[
                              "APFD", "DCR", "APRC", "METHOD", "SUT", "TEST_SET"])
     pareto_df.to_csv('test.csv', mode='a', index=False, header=False)
-    print(pareto_df.head())
+    # print(pareto_df.head())
 
     # print("POPULATION LENGTH", len(ga.population))
     # print("OPTIMAL FRONT LENGTH", len(non_dominated_tcp_solutions))
@@ -78,6 +78,7 @@ def main():
 
     # calculate APRC, put into a list
     # average APRC value
+
 
 if __name__ == "__main__":
     main()

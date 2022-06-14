@@ -26,7 +26,7 @@ class GeneticAlgorithm:
         return len(self.test_cases)
 
     def run(self):
-        print("CREATING INITAL POPULATION")
+        # print("CREATING INITAL POPULATION")
         self.population = self.create_initial_population()
         # print("BEGIN SORT")
         self.fast_nondominated_sort(self.population)
@@ -68,25 +68,35 @@ class GeneticAlgorithm:
     def create_initial_population(self):
         population = Population()
         for i in range(0, self.pop_size):
-            # print("CREATING CHROMOSOME: ", i)
+            print("CREATING CHROMOSOME: ", i)
             chromosome = []
-            for j in range(0, len(self.test_cases)):
-                self.populate(j, chromosome)
+
+            while (len(chromosome) != self.chromosome_size):
+                # for j in range(0, len(self.test_cases)):
+                self.populate(chromosome)
 
             individual = Individual(chromosome)
             individual.calculate_fitness(self.rdw)
             population.append(individual)
         return population
 
-    def populate(self, j, chromosome):
+    def populate(self, chromosome):
         random_index = random.randint(1, len(self.test_cases))
-        chromosome.append(self.test_cases[random_index - 1])
 
-        if j > 0:
-            if self.is_duplicate_found(chromosome):
-                chromosome.pop()
-                self.populate(j, chromosome)
+        if not self.check_duplicate(self.test_cases[random_index - 1], chromosome):
+            chromosome.append(self.test_cases[random_index - 1])
 
+        # if j > 0:
+        #     if self.is_duplicate_found(chromosome):
+        #         chromosome.pop()
+        #         self.populate(j, chromosome)
+
+    def check_duplicate(self, new_tc, chromosome):
+        if new_tc in chromosome:
+            return True
+        return False
+
+    # ubah metode duplicate dengan menerima 2 parameter
     @staticmethod
     def is_duplicate_found(chromosome):
         duplicate_checker = []

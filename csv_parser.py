@@ -67,7 +67,7 @@ class CSVParser:
 
         for item in requirements:
             rdw.append(sum(item[1]))
-        print("RDW MATRIX", rdw)
+        # print("RDW MATRIX", rdw)
         return rdw
 
     def calc_dep_weight(self, tr, rdw):
