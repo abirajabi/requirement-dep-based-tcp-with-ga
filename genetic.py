@@ -28,16 +28,16 @@ class GeneticAlgorithm:
     def run(self):
         print("CREATING INITAL POPULATION")
         self.population = self.create_initial_population()
-        print("BEGIN SORT")
+        # print("BEGIN SORT")
         self.fast_nondominated_sort(self.population)
-        print("DONE SORTING, CALCULATING CROWDING DISTNANCE")
+        # print("DONE SORTING, CALCULATING CROWDING DISTNANCE")
         for front in self.population.fronts:
             self.calculate_crowding_distance(front)
         children = self.create_children(self.population)
 
         returned_population = None
         for i in range(self.number_of_generation):
-            print("GENERATION NUMBER ", i + 1)
+            # print("GENERATION NUMBER ", i + 1)
             self.population.extend(children)
             self.fast_nondominated_sort(self.population)
             new_population = Population()
@@ -68,7 +68,7 @@ class GeneticAlgorithm:
     def create_initial_population(self):
         population = Population()
         for i in range(0, self.pop_size):
-            print("CREATING CHROMOSOME: ", i)
+            # print("CREATING CHROMOSOME: ", i)
             chromosome = []
             for j in range(0, len(self.test_cases)):
                 self.populate(j, chromosome)
@@ -113,7 +113,7 @@ class GeneticAlgorithm:
 
         i = 0
         while len(population.fronts[i]) > 0:
-            print("FRONT LENGTH ", i, len(population.fronts[i]))
+            # print("FRONT LENGTH ", i, len(population.fronts[i]))
             temp = []
             for individual in population.fronts[i]:
                 for other_individual in individual.dominated_solutions:

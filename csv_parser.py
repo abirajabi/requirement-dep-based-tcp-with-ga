@@ -55,7 +55,6 @@ class CSVParser:
         rdw = []
 
         with open(self.rdr_path, mode='r', encoding="utf-8-sig") as rdr_file:
-
             csv_reader = csv.reader(rdr_file)
             for row in csv_reader:
                 req_depend = []
@@ -68,7 +67,7 @@ class CSVParser:
 
         for item in requirements:
             rdw.append(sum(item[1]))
-
+        print("RDW MATRIX", rdw)
         return rdw
 
     def calc_dep_weight(self, tr, rdw):

@@ -61,7 +61,8 @@ class Individual:
                     w += self.chromosome[j].dw
                 auc += w
             dcr += auc
-
+        print("TEST CASE SET", [i.tc_number for i in self.chromosome])
+        print("TOTAL RDW = ", total_tdw)
         return dcr / (number_of_test_cases_in_set * total_tdw)
 
     # dominates by maximization of the 2 objectives function

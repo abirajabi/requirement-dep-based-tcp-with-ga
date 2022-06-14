@@ -5,7 +5,7 @@
         1. TCP: https://github.com/dathpo/test-case-prioritisation-ga
         2. NSGA-II: https://github.com/baopng/NSGA-II
 '''
-import seaborn as sns
+# import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -13,18 +13,18 @@ from csv_parser import CSVParser
 from genetic import GeneticAlgorithm
 
 
-def calculate_aprc(test_case_set):
+def calculate_aprc(individual):
     weight = 0
-    number_of_test_cases_in_set = len(test_case_set)
-    number_of_requirement = len(self.chromosome[0].tr)
+    number_of_test_cases_in_set = len(individual.chromosome)
+    number_of_requirement = len(individual.chromosome[0].tr)
 
     for i in range(0, number_of_requirement):
         for j in range(0, number_of_test_cases_in_set):
-            if self.chromosome[j].tr[i]:
+            if individual.chromosome[j].tr[i]:
                 weight += j + 1
                 break
 
-            if j == len(self.chromosome) - 1:
+            if j == len(individual.chromosome) - 1:
                 weight += number_of_test_cases_in_set + 1
 
     return 1 - (weight / (number_of_requirement * number_of_test_cases_in_set)
@@ -33,9 +33,10 @@ def calculate_aprc(test_case_set):
 def main():
     # load and parse the three matrix
     parser = CSVParser(
-        tf_path="./casestudy/iTrust/tf.csv",
-        tr_path="./casestudy/iTrust/tr.csv",
-        rdr_path="./casestudy/iTrust/rdr_weight.csv"
+        tf_path="./casestudy/CST/tf.csv",
+        tr_path="./casestudy/CST/tr.csv",
+        # rdr_path="./casestudy/CST/rdr.csv"
+        rdr_path="./casestudy/CST/rdr_weight.csv"
     )
 
     # parse rdr matrix first to fill rdw
@@ -43,27 +44,31 @@ def main():
     test_cases = parser.parse_test_cases(rdw)
 
     # construct a population of test cases order permutation
-    ga = GeneticAlgorithm(test_cases, rdw, number_of_generation=100)
+    ga = GeneticAlgorithm(test_cases, rdw, number_of_generation=1000)
 
     # return pareto optimal solution
     non_dominated_tcp_solutions = ga.run()
-    print("FRONT OPTIMAL LENGTH: ", len(non_dominated_tcp_solutions))
 
     pop_data = []
-    for individual in non_dominated_tcp_solutions:
-        # optimal = True if individual in non_dominated_tcp_solutions else False
-        pop_data.append(
-            (individual.objectives[0], individual.objectives[1], [tc.tc_number for tc in individual.chromosome]))
+    method = "WEIGHTED"
+    # method = "BINARY"
+    sut = "CST"
 
+    for individual in non_dominated_tcp_solutions:
+        aprc = calculate_aprc(individual)
+        pop_data.append(
+            (individual.objectives[0], individual.objectives[1], aprc, method, sut, [tc.tc_number for tc in individual.chromosome]))
+
+    # columns=["APFD", "DCR", "METHOD", "SUT", "TEST_SET"]
     pareto_df = pd.DataFrame(data=pop_data, columns=[
-                             "APFD", "DCR", "TEST CASE SET"])
-    pareto_df.to_csv('test.csv', index=False)
+                             "APFD", "DCR", "APRC", "METHOD", "SUT", "TEST_SET"])
+    pareto_df.to_csv('test.csv', mode='a', index=False, header=False)
     print(pareto_df.head())
 
-    print("POPULATION LENGTH", len(ga.population))
-    print("OPTIMAL FRONT LENGTH", len(non_dominated_tcp_solutions))
-    sns.scatterplot(data=pareto_df, x="DCR", y="APFD")
-    plt.show()
+    # print("POPULATION LENGTH", len(ga.population))
+    # print("OPTIMAL FRONT LENGTH", len(non_dominated_tcp_solutions))
+    # sns.scatterplot(data=pareto_df, x="DCR", y="APFD")
+    # plt.show()
 
     # Average Precentage of Requirement Covered (APRC)
     # calculate APRD for each individual on pareto optimal solution
