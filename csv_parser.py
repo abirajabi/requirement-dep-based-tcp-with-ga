@@ -15,7 +15,9 @@ class CSVParser:
         self.rdr_path = rdr_path
 
     # return type: List of Gene. Gene represent a single test case with metadata
-    def parse_test_cases(self, rdw):
+    def parse_test_cases(self):
+        rdw = self.parse_rdr_matrix()
+
         tr = []
         tf = []
         tc = []

@@ -11,9 +11,9 @@ from gene import Gene
 
 class GeneticAlgorithm:
 
-    def __init__(self, test_cases, rdw, pop_size=100, crossover_rate=0.95, mutation_rate=0.01, number_of_generation=1000, tournament_prob=0.9):
+    def __init__(self, test_cases, pop_size=100, crossover_rate=0.95, mutation_rate=0.01, number_of_generation=100, tournament_prob=0.9):
         self.test_cases = test_cases
-        self.rdw = rdw
+        # self.rdw = rdw
         self.population = None
         self.pop_size = pop_size
         self.crossover_rate = crossover_rate
@@ -37,7 +37,7 @@ class GeneticAlgorithm:
 
         returned_population = None
         for i in range(self.number_of_generation):
-            # print("GENERATION NUMBER ", i + 1)
+            print("GENERATION NUMBER ", i + 1)
             self.population.extend(children)
             self.fast_nondominated_sort(self.population)
             new_population = Population()
@@ -72,11 +72,10 @@ class GeneticAlgorithm:
             chromosome = []
 
             while (len(chromosome) != self.chromosome_size):
-                # for j in range(0, len(self.test_cases)):
                 self.populate(chromosome)
 
             individual = Individual(chromosome)
-            individual.calculate_fitness(self.rdw)
+            individual.calculate_fitness()
             population.append(individual)
         return population
 
@@ -86,24 +85,10 @@ class GeneticAlgorithm:
         if not self.check_duplicate(self.test_cases[random_index - 1], chromosome):
             chromosome.append(self.test_cases[random_index - 1])
 
-        # if j > 0:
-        #     if self.is_duplicate_found(chromosome):
-        #         chromosome.pop()
-        #         self.populate(j, chromosome)
-
     def check_duplicate(self, new_tc, chromosome):
         if new_tc in chromosome:
             return True
         return False
-
-    # ubah metode duplicate dengan menerima 2 parameter
-    @staticmethod
-    def is_duplicate_found(chromosome):
-        duplicate_checker = []
-        for genes in chromosome:
-            duplicate_checker.append(genes.tc_number)
-
-        return len(duplicate_checker) != len(set(duplicate_checker))
 
     def fast_nondominated_sort(self, population):
         population.fronts = [[]]
@@ -233,9 +218,9 @@ class GeneticAlgorithm:
                 break
 
         new_individual1 = Individual(first_child_test_case_set)
-        new_individual1.calculate_fitness(self.rdw)
+        new_individual1.calculate_fitness()
         new_individual2 = Individual(second_child_test_case_set)
-        new_individual2.calculate_fitness(self.rdw)
+        new_individual2.calculate_fitness()
 
         return new_individual1, new_individual2
 

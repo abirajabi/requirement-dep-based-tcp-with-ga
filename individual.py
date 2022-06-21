@@ -16,9 +16,9 @@ class Individual:
         self.dominated_solutions = None
         self.objectives = []
 
-    def calculate_fitness(self, rdw):
+    def calculate_fitness(self):
         self.objectives.append(self.calculate_apfd())
-        self.objectives.append(self.calculate_req_dep(rdw))
+        self.objectives.append(self.calculate_req_dep())
 
     # calculate the apfd as objective function of an individual
     def calculate_apfd(self):
@@ -42,7 +42,7 @@ class Individual:
 
     #  Dependency coverage rate (DCR)
     #  calculate the DCR as objective function of an individual
-    def calculate_req_dep(self, rdw):
+    def calculate_req_dep(self):
         dcr = 0
         total_tdw = 0
         for tc in self.chromosome:
@@ -61,8 +61,8 @@ class Individual:
                     w += self.chromosome[j].dw
                 auc += w
             dcr += auc
-        # print("TEST CASE SET", [i.tc_number for i in self.chromosome])
-        # print("TOTAL RDW = ", total_tdw)
+        print("TEST CASE SET", [i.tc_number for i in self.chromosome])
+        print("TOTAL RDW = ", total_tdw)
         return dcr / (number_of_test_cases_in_set * total_tdw)
 
     # dominates by maximization of the 2 objectives function
