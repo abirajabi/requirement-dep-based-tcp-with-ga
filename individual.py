@@ -2,7 +2,7 @@
     Author: Naufal Rajabi
     Individual is a chromosome that contains a set of gene, with its metadata
 '''
-import sys
+
 
 class Individual:
     def __init__(self, genes):
@@ -62,7 +62,7 @@ class Individual:
                 auc += w
             dcr += auc
         print("TEST CASE SET", [i.tc_number for i in self.chromosome])
-        print("TOTAL RDW = ", total_tdw)
+        print("TOTAL TDW = ", total_tdw)
         return dcr / (number_of_test_cases_in_set * total_tdw)
 
     # dominates by maximization of the 2 objectives function
@@ -75,8 +75,3 @@ class Individual:
             or_condition = or_condition or mine > others
 
         return (and_condition and or_condition)
-
-    def reset(self):
-        self.domination_count = 0
-        self.rank = sys.maxsize
-        self.dominated_solutions = []
