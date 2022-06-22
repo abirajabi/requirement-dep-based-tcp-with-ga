@@ -5,8 +5,8 @@
         1. TCP: https://github.com/dathpo/test-case-prioritisation-ga
         2. NSGA-II: https://github.com/baopng/NSGA-II
 '''
-import pandas as pd
-import matplotlib.pyplot as plt
+# import pandas as pd
+# import matplotlib.pyplot as plt
 # import seaborn as sns
 
 from csv_parser import CSVParser
@@ -15,15 +15,17 @@ from genetic import GeneticAlgorithm
 
 def main():
     # method = "WEIGHTED"
-    method = "BINARY"
-    sut = "CST"
+    # method = "BINARY"
+    sut = "CS2"
 
     # load and parse the three matrix
     parser = CSVParser(
         tf_path="./casestudy/" + sut + "/tf.csv",
         tr_path="./casestudy/" + sut + "/tr.csv",
-        rdr_path="./casestudy/" + sut + "/rdr.csv"
-        # rdr_path="./casestudy/" + sut + "/rdr_weight.csv"
+        # rdr_path="./casestudy/" + sut + "/rdr.csv"
+        # rdr_path="./casestudy/" + sut + "/rdr_oe.csv"
+        # rdr_path="./casestudy/" + sut + "/rdr_ami.csv"
+        rdr_path="./casestudy/" + sut + "/rdr_nr.csv"
     )
 
     # parse rdr matrix first to fill rdw
@@ -36,14 +38,21 @@ def main():
 
     pop_data = []
 
+    total_apfd, total_dcr = 0, 0
     for individual in non_dominated_tcp_solutions:
-        pop_data.append(
-            (individual.objectives[0], individual.objectives[1], method, sut, [tc.tc_number for tc in individual.chromosome]))
+        total_apfd += individual.objectives[0]
+        total_dcr += individual.objectives[1]
 
-    columns = ["APFD", "DCR", "METHOD", "SUT", "TEST_SET"]
-    pareto_df = pd.DataFrame(data=pop_data, columns=columns)
-    pareto_df.to_csv('demo.csv', mode='a', index=False, header=False)
-    print(pareto_df.head())
+        # pop_data.append(
+        #     (individual.objectives[0], individual.objectives[1], method, sut, [tc.tc_number for tc in individual.chromosome]))
+
+    print(total_apfd/len(non_dominated_tcp_solutions),
+          total_dcr/len(non_dominated_tcp_solutions))
+
+    # columns = ["APFD", "DCR", "METHOD", "SUT", "TEST_SET"]
+    # pareto_df = pd.DataFrame(data=pop_data, columns=columns)
+    # pareto_df.to_csv('demo.csv', mode='a', index=False, header=False)
+    # print(pareto_df.head())
 
     # sns.scatterplot(data=pareto_df, x="DCR", y="APFD")
     # plt.show()

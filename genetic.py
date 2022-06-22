@@ -268,10 +268,10 @@ class GeneticAlgorithm:
         new_generation = []
 
         if self.choose_with_prob(self.crossover_rate):
-            children_duo = self.crossover(
-                parents_candidate[0], parents_candidate[1])
-            # children_duo = self.two_point_crossover(
+            # children_duo = self.crossover(
             #     parents_candidate[0], parents_candidate[1])
+            children_duo = self.two_point_crossover(
+                parents_candidate[0], parents_candidate[1])
 
             for child in children_duo:
                 new_generation.append(child)
