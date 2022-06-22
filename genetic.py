@@ -7,6 +7,7 @@ import copy
 from individual import Individual
 from population import Population
 from gene import Gene
+from itertools import chain
 
 
 class GeneticAlgorithm:
@@ -37,7 +38,7 @@ class GeneticAlgorithm:
 
         returned_population = None
         for i in range(self.number_of_generation):
-            print("GENERATION NUMBER ", i + 1)
+            # print("GENERATION NUMBER ", i + 1)
             self.population.extend(children)
             self.fast_nondominated_sort(self.population)
             new_population = Population()
@@ -68,7 +69,7 @@ class GeneticAlgorithm:
     def create_initial_population(self):
         population = Population()
         for i in range(0, self.pop_size):
-            print("CREATING CHROMOSOME: ", i)
+            # print("CREATING CHROMOSOME: ", i)
             chromosome = []
 
             while (len(chromosome) != self.chromosome_size):
@@ -145,10 +146,18 @@ class GeneticAlgorithm:
         else:
             return -1
 
-    @staticmethod
-    def get_crossover_point():
-        value = random.random()
-        return value
+    def get_crossover_point(self):
+        return random.randint(0, self.chromosome_size)
+
+    def get_two_sorted_crossover_point(self):
+        crossover_point1 = self.get_crossover_point()
+        crossover_point2 = crossover_point1
+        while crossover_point1 == crossover_point2:
+            crossover_point2 = self.get_crossover_point()
+
+        point = [crossover_point1, crossover_point2]
+        point.sort()
+        return point[0], point[1]
 
     def choose_with_prob(self, prob):
         value = random.random()
@@ -188,13 +197,44 @@ class GeneticAlgorithm:
 
         return best
 
+    def two_point_crossover(self, individual1, individual2):
+        start, end = self.get_two_sorted_crossover_point()
+
+        #  preserved gene
+        preserved1 = individual1.chromosome[start:end+1]
+        preserved2 = individual2.chromosome[start:end+1]
+        # print("PRESERVED1: ", [tc.tc_number for tc in preserved1])
+        # print("PRESERVED2: ", [tc.tc_number for tc in preserved2])
+
+        # take element from other parent that is not in preserved gene
+        offspring_set1 = [
+            gene for gene in individual2.chromosome if not gene in preserved1]
+        offspring_set2 = [
+            gene for gene in individual1.chromosome if not gene in preserved2]
+
+        preserved1.reverse()
+        preserved2.reverse()
+
+        for gene1, gene2 in zip(preserved1, preserved2):
+            offspring_set1.insert(start, gene1)
+            offspring_set2.insert(start, gene2)
+
+        # print("OFFSPEING1: ", [tc.tc_number for tc in offspring_set1])
+        # print("OFFSPRING2: ", [tc.tc_number for tc in offspring_set2])
+
+        new_individual1 = Individual(offspring_set1)
+        new_individual1.calculate_fitness()
+        new_individual2 = Individual(offspring_set2)
+        new_individual2.calculate_fitness()
+
+        return new_individual1, new_individual2
+
     def crossover(self, individual1, individual2):
         # do single point crossover
         first_child_test_case_set = []
         second_child_test_case_set = []
 
-        crossover_point = int((self.get_crossover_point())
-                              * (self.chromosome_size-1)) + 1
+        crossover_point = self.get_crossover_point()
         first_parent_copy = individual1.chromosome.copy()
         second_parent_copy = individual2.chromosome.copy()
 
@@ -230,12 +270,21 @@ class GeneticAlgorithm:
         if self.choose_with_prob(self.crossover_rate):
             children_duo = self.crossover(
                 parents_candidate[0], parents_candidate[1])
+            # children_duo = self.two_point_crossover(
+            #     parents_candidate[0], parents_candidate[1])
 
             for child in children_duo:
                 new_generation.append(child)
         else:
-            new_generation.append(copy.deepcopy(parents_candidate[0]))
-            new_generation.append(copy.deepcopy(parents_candidate[1]))
+            # new_generation.append(copy.deepcopy(parents_candidate[0]))
+            # new_generation.append(copy.deepcopy(parents_candidate[1]))
+            ind1 = Individual(parents_candidate[0].chromosome)
+            ind1.calculate_fitness()
+            ind2 = Individual(parents_candidate[1].chromosome)
+            ind2.calculate_fitness()
+
+            new_generation.append(ind1)
+            new_generation.append(ind2)
         return new_generation
 
     def swap_test_cases(self, test_case_index):

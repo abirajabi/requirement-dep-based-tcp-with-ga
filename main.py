@@ -32,16 +32,16 @@ def calculate_aprc(individual):
 
 
 def main():
-    method = "WEIGHTED"
-    # method = "BINARY"
+    # method = "WEIGHTED"
+    method = "BINARY"
     sut = "CST"
 
     # load and parse the three matrix
     parser = CSVParser(
         tf_path="./casestudy/" + sut + "/tf.csv",
         tr_path="./casestudy/" + sut + "/tr.csv",
-        # rdr_path="./casestudy/" + sut + "/rdr.csv"
-        rdr_path="./casestudy/" + sut + "/rdr_weight.csv"
+        rdr_path="./casestudy/" + sut + "/rdr.csv"
+        # rdr_path="./casestudy/" + sut + "/rdr_weight.csv"
     )
 
     # parse rdr matrix first to fill rdw
@@ -66,8 +66,8 @@ def main():
     pareto_df.to_csv('demo.csv', mode='a', index=False, header=False)
     print(pareto_df.head())
 
-    print("POPULATION LENGTH", len(ga.population))
-    print("OPTIMAL FRONT LENGTH", len(non_dominated_tcp_solutions))
+    # print("POPULATION LENGTH", len(ga.population))
+    # print("OPTIMAL FRONT LENGTH", len(non_dominated_tcp_solutions))
     sns.scatterplot(data=pareto_df, x="DCR", y="APFD")
     plt.show()
 
