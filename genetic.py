@@ -276,8 +276,6 @@ class GeneticAlgorithm:
             for child in children_duo:
                 new_generation.append(child)
         else:
-            # new_generation.append(copy.deepcopy(parents_candidate[0]))
-            # new_generation.append(copy.deepcopy(parents_candidate[1]))
             ind1 = Individual(parents_candidate[0].chromosome)
             ind1.calculate_fitness()
             ind2 = Individual(parents_candidate[1].chromosome)
