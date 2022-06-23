@@ -38,7 +38,7 @@ class GeneticAlgorithm:
 
         returned_population = None
         for i in range(self.number_of_generation):
-            # print("GENERATION NUMBER ", i + 1)
+            print("GENERATION NUMBER ", i + 1)
             self.population.extend(children)
             self.fast_nondominated_sort(self.population)
             new_population = Population()
