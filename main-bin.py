@@ -15,7 +15,7 @@ from genetic import GeneticAlgorithm
 
 def main():
     # method = "WEIGHTED"
-    # method = "BINARY"
+    method = "BINARY"
     sut = "iTrust"
 
     # load and parse the three matrix
@@ -39,6 +39,8 @@ def main():
     total_apfd, total_dcr = 0, 0
     pop_data = []
     max_apfd, max_dcr = 0, 0
+
+
     for individual in non_dominated_tcp_solutions:
         total_apfd += individual.objectives[0]
         total_dcr += individual.objectives[1]
@@ -50,12 +52,12 @@ def main():
             max_dcr = individual.objectives[1]
         
         pop_data.append(
-            (individual.objectives[0], individual.objectives[1], method, sut, [tc.tc_number for tc in individual.chromosome]))
+            (individual.objectives[0], individual.objectives[1], individual.objectives[2], method, sut, [tc.tc_number for tc in individual.chromosome]))
 
     print(total_apfd/len(non_dominated_tcp_solutions),
           total_dcr/len(non_dominated_tcp_solutions), max_apfd, max_dcr)
 
-    columns = ["APFD", "DCR", "METHOD", "SUT", "TEST_SET"]
+    columns = ["APFD", "DCR", "IRR", "METHOD", "SUT", "TEST_SET"]
     pareto_df = pd.DataFrame(data=pop_data, columns=columns)
     pareto_df.to_csv('demo.csv', mode='a', index=False, header=False)
     print(pareto_df.head())
