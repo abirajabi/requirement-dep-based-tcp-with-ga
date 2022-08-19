@@ -13,8 +13,9 @@
 
 
 class Gene:
-    def __init__(self, tc_number, tf, tr, dw):
+    def __init__(self, tc_number, tf, tr, dw, irtw):
         self.tc_number = tc_number
         self.tf = tf
         self.tr = tr
         self.dw = dw
+        self.irtw = irtw

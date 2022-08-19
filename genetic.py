@@ -29,8 +29,10 @@ class GeneticAlgorithm:
     def run(self):
         # print("CREATING INITAL POPULATION")
         self.population = self.create_initial_population()
+
         # print("BEGIN SORT")
         self.fast_nondominated_sort(self.population)
+        
         # print("DONE SORTING, CALCULATING CROWDING DISTNANCE")
         for front in self.population.fronts:
             self.calculate_crowding_distance(front)

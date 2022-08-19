@@ -1,0 +1,7 @@
+internal_req.csv are organized as follows:
+
+First Column: Requirement Impact Value (1 - 4)
+Second Column: Requirement Complexity Value Fibbonacci (until 8 --> 1, 2, 3, 5 ,8)
+Third Column: Requirement Change Value (1 - 5)
+
+Row represent requirement in actual SUT.

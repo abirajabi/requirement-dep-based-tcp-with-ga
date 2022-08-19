@@ -15,18 +15,21 @@ from genetic import GeneticAlgorithm
 
 def main():
     # method = "WEIGHTED"
-    method = "BINARY"
-    sut = "Elevator"
+    # method = "BINARY"
+    sut = "iTrust"
 
     # load and parse the three matrix
     parser = CSVParser(
         tf_path="./casestudy/" + sut + "/tf.csv",
         tr_path="./casestudy/" + sut + "/tr.csv",
-        rdr_path="./casestudy/" + sut + "/rdr.csv"
+        rdr_path="./casestudy/" + sut + "/rdr.csv",
+        irf_path="./casestudy/" + sut + "/internal_req.csv"
     )
 
     # parse rdr matrix first to fill rdw
     test_cases = parser.parse_test_cases()
+    
+
     # construct a population of test cases order permutation
     ga = GeneticAlgorithm(test_cases)
 
@@ -55,7 +58,7 @@ def main():
     columns = ["APFD", "DCR", "METHOD", "SUT", "TEST_SET"]
     pareto_df = pd.DataFrame(data=pop_data, columns=columns)
     pareto_df.to_csv('demo.csv', mode='a', index=False, header=False)
-    # print(pareto_df.head())
+    print(pareto_df.head())
 
     # sns.scatterplot(data=pareto_df, x="DCR", y="APFD")
     # plt.show()

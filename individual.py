@@ -3,7 +3,6 @@
     Individual is a chromosome that contains a set of gene, with its metadata
 '''
 
-
 class Individual:
     def __init__(self, genes):
         # TCP related
@@ -19,6 +18,7 @@ class Individual:
     def calculate_fitness(self):
         self.objectives.append(self.calculate_apfd())
         self.objectives.append(self.calculate_req_dep())
+        self.objectives.append(self.calculate_third_fitness())
 
     # calculate the apfd as objective function of an individual
     def calculate_apfd(self):
@@ -64,6 +64,32 @@ class Individual:
         # print("TEST CASE SET", [i.tc_number for i in self.chromosome])
         # print("TOTAL TDW = ", total_tdw)
         return dcr / (number_of_test_cases_in_set * total_tdw)
+
+    # The third fitness function for (Internal Requirement Test Case Weight) ITW
+    # TODO: name the third fitness function / metric
+    # temporary name: IRR (internal requirement rate)
+    def calculate_third_fitness(self):
+        irr = 0
+        total_irtw = 0
+        for tc in self.chromosome:
+            total_irtw += tc.irtw
+
+        number_of_test_cases_in_set = len(self.chromosome)
+
+        for i in range(0, number_of_test_cases_in_set):
+            auc = 0
+            if i == 0:
+                auc = self.chromosome[i].irtw/2
+            else:
+                w = 0
+                auc += self.chromosome[i].irtw/2
+                for j in range(0, i):
+                    w += self.chromosome[j].irtw
+                auc += w
+            irr += auc
+        # print("TEST CASE SET", [i.tc_number for i in self.chromosome])
+        # print("TOTAL TDW = ", total_irtw)
+        return irr / (number_of_test_cases_in_set * total_irtw)
 
     # dominates by maximization of the 2 objectives function
     def dominates(self, other_individual):
