@@ -16,7 +16,7 @@ from genetic import GeneticAlgorithm
 def main():
     # method = "WEIGHTED"
     # method = "BINARY"
-    sut = "CS2"
+    sut = "iTrust"
 
     # load and parse the three matrix
     parser = CSVParser(

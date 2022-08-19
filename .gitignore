@@ -1,3 +1,4 @@
 nsga-from-panda.py
 convert.py
 *.ipynb
+__pycache__/
