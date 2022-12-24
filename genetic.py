@@ -45,27 +45,39 @@ class GeneticAlgorithm:
             self.fast_nondominated_sort(self.population)
             new_population = Population()
 
+            #  do ranking system 
             front_num = 0
             while len(new_population) + len(self.population.fronts[front_num]) <= self.pop_size:
+                print("NEW POP, LEN OF FRONT ", len(new_population), " ", len(self.population.fronts[front_num]))
                 self.calculate_crowding_distance(
                     self.population.fronts[front_num])
+
+                # extend new population with good individual
                 new_population.extend(self.population.fronts[front_num])
                 front_num += 1
 
+            #  calculate crowding distance of the last front
             self.calculate_crowding_distance(
                 self.population.fronts[front_num])
+            
             self.population.fronts[front_num].sort(
                 key=lambda individual: individual.crowding_distance, reverse=True)
             new_population.extend(
                 self.population.fronts[front_num][0:self.pop_size-len(new_population)])
-            returned_population = self.population
-
+            # print("OLD POPULATION LEN", len(self.population))
+            # print("NEW POPULATION LEN", len(new_population))
+            
             self.population = new_population
+
+            # if i < self.number_of_generation:
             self.fast_nondominated_sort(self.population)
             for front in self.population.fronts:
                 self.calculate_crowding_distance(front)
             children = self.create_children(self.population)
 
+        print("SELF POPULATION LAST LENGTH", len(self.population))
+        returned_population = new_population
+        # print("NUMBER OF FRONT", len(new_population.fronts))
         return returned_population.fronts[0]
 
     def create_initial_population(self):

@@ -6,8 +6,8 @@
         2. NSGA-II: https://github.com/baopng/NSGA-II
 '''
 import pandas as pd
-# import matplotlib.pyplot as plt
-# import seaborn as sns
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 from csv_parser import CSVParser
 from genetic import GeneticAlgorithm
@@ -16,7 +16,7 @@ from genetic import GeneticAlgorithm
 def main():
     # method = "WEIGHTED"
     method = "BINARY"
-    sut = "iTrust"
+    sut = "CS1"
 
     # load and parse the three matrix
     parser = CSVParser(
@@ -40,7 +40,6 @@ def main():
     pop_data = []
     max_apfd, max_dcr = 0, 0
 
-
     for individual in non_dominated_tcp_solutions:
         total_apfd += individual.objectives[0]
         total_dcr += individual.objectives[1]
@@ -59,11 +58,11 @@ def main():
 
     columns = ["APFD", "DCR", "IRR", "METHOD", "SUT", "TEST_SET"]
     pareto_df = pd.DataFrame(data=pop_data, columns=columns)
-    pareto_df.to_csv('demo.csv', mode='a', index=False, header=False)
+    pareto_df.to_csv('demo.csv', mode='w', index=False, header=False)
     print(pareto_df.head())
 
-    # sns.scatterplot(data=pareto_df, x="DCR", y="APFD")
-    # plt.show()
+    sns.scatterplot(data=pareto_df, x="DCR", y="APFD")
+    plt.show()
 
 
 if __name__ == "__main__":

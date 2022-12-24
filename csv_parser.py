@@ -108,7 +108,7 @@ class CSVParser:
             irf_reader = csv.reader(irf_file)
 
             for row in irf_reader:
-                irf_list.append(sum(map(int, row)))
+                irf_list.append(sum(map(float, row)))
         irf_file.close()
 
         return irf_list
